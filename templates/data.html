@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="space-y-8">
+    <div class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold text-gray-900">📊 Eksplorasi Data</h1>
+    </div>
+
+    {% if error %}
+    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
+        <p class="font-bold">Error</p>
+        <p>{{ error }}</p>
+    </div>
+    {% else %}
+
+    <!-- Summary Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
+            <p class="text-sm text-gray-500">Total Records</p>
+            <p class="text-2xl font-bold text-gray-800">{{ summary.total_records }}</p>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
+            <p class="text-sm text-gray-500">Tahun Awal</p>
+            <p class="text-2xl font-bold text-gray-800">{{ summary.start_year }}</p>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow border-l-4 border-purple-500">
+            <p class="text-sm text-gray-500">Tahun Akhir</p>
+            <p class="text-2xl font-bold text-gray-800">{{ summary.end_year }}</p>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500">
+            <p class="text-sm text-gray-500">Total Fitur</p>
+            <p class="text-2xl font-bold text-gray-800">{{ summary.total_features }}</p>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-semibold mb-4">📉 Visualisasi Time Series</h2>
+        <div class="space-y-8">
+            <div>
+                <canvas id="tempChart" height="100"></canvas>
+            </div>
+            <div>
+                <canvas id="humidityChart" height="100"></canvas>
+            </div>
+            <div>
+                <canvas id="rainChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">📄 Dataset (100 Data Pertama)</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Tanggal</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">TAVG
+                            (°C)</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            RH_AVG (%)</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">RR
+                            (mm)</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for row in table_data %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row.date }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ row.TAVG }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ row.RH_AVG }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ row.RR }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const chartData = {{ chart_data | tojson }};
+
+    // Helper to create charts
+    function createLineChart(ctx, label, data, color, yLabel) {
+        return new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartData.date,
+                datasets: [{
+                    label: label,
+                    data: data,
+                    borderColor: color,
+                    backgroundColor: color + '20', // transparent version
+                    borderWidth: 1,
+                    pointRadius: 0, // hide points for cleaner look on large datasets
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: label
+                    }
+                },
+                scales: {
+                    y: {
+                        title: {
+                            display: true,
+                            text: yLabel
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            maxTicksLimit: 10 // limit x-axis labels
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    createLineChart(document.getElementById('tempChart'), 'Suhu Rata-rata (TAVG)', chartData.tavg, '#EF4444', 'Temperatur (°C)');
+    createLineChart(document.getElementById('humidityChart'), 'Kelembapan Rata-rata (RH_AVG)', chartData.rh_avg, '#3B82F6', 'Kelembapan (%)');
+    createLineChart(document.getElementById('rainChart'), 'Curah Hujan (RR)', chartData.rr, '#10B981', 'Curah Hujan (mm)');
+
+</script>
+{% endblock %}

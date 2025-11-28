@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Hero Section -->
+    <div class="text-center py-10">
+        <h1 class="text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight lg:text-6xl">
+            Sistem Prediksi <span class="text-blue-600">Curah Hujan</span>
+        </h1>
+        <p class="mt-4 max-w-2xl mx-auto text-xl text-gray-500">
+            Stasiun Meteorologi Citeko - Kabupaten Bogor, Jawa Barat
+        </p>
+    </div>
+
+    <!-- Metric Cards -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
+        <!-- Card 1 -->
+        <div class="bg-white overflow-hidden shadow rounded-lg transform transition hover:scale-105 duration-300">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
+                        <i class="fa-solid fa-location-dot text-white text-2xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Stasiun</dt>
+                            <dd class="text-lg font-medium text-gray-900">Meteorologi Citeko</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="bg-white overflow-hidden shadow rounded-lg transform transition hover:scale-105 duration-300">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-purple-500 rounded-md p-3">
+                        <i class="fa-solid fa-brain text-white text-2xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Model AI</dt>
+                            <dd class="text-lg font-medium text-gray-900">LSTM & Prophet</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="bg-white overflow-hidden shadow rounded-lg transform transition hover:scale-105 duration-300">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
+                        <i class="fa-regular fa-calendar-days text-white text-2xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Periode Data</dt>
+                            <dd class="text-lg font-medium text-gray-900">2010 - 2025</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Map Section -->
+    <div class="bg-white shadow rounded-lg p-6">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">📍 Lokasi Stasiun</h2>
+        <div id="map" class="h-96 w-full rounded-lg z-0"></div>
+    </div>
+
+    <!-- Info Section -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="bg-blue-50 rounded-lg p-6 border-l-4 border-blue-500">
+            <h3 class="text-lg font-semibold text-blue-800 mb-2">📖 Tentang Aplikasi</h3>
+            <p class="text-blue-700">
+                Aplikasi ini menggunakan teknologi <b>Machine Learning</b> dan <b>Deep Learning</b> untuk memprediksi
+                curah hujan. Menggunakan model LSTM (Long Short-Term Memory) dan Prophet yang dilatih dengan data
+                historis BMKG.
+            </p>
+        </div>
+
+        <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">🚀 Fitur Utama</h3>
+            <ul class="space-y-3">
+                <li class="flex items-start">
+                    <i class="fa-solid fa-check-circle text-green-500 mt-1 mr-2"></i>
+                    <span>Eksplorasi data historis dengan visualisasi interaktif</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fa-solid fa-check-circle text-green-500 mt-1 mr-2"></i>
+                    <span>Evaluasi performa model (MAE, MSE, RMSE)</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fa-solid fa-check-circle text-green-500 mt-1 mr-2"></i>
+                    <span>Prediksi real-time dengan penjelasan AI (Gemini)</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize Leaflet Map
+    var map = L.map('map').setView([-6.7053, 106.9441], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    L.marker([-6.7053, 106.9441]).addTo(map)
+        .bindPopup('<b>Stasiun Meteorologi Citeko</b><br>Kabupaten Bogor, Jawa Barat')
+        .openPopup();
+</script>
+{% endblock %}
