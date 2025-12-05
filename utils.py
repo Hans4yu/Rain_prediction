@@ -40,7 +40,7 @@ def generate_ai_explanation(rainfall, tavg, rh_avg, category, model_name):
         return None
     
     try:
-        model = genai.GenerativeModel('gemma-3-27b-it')
+        model = genai.GenerativeModel('gemma-3-4b-it')
         
         prompt = f"""
         Anda adalah ahli meteorologi yang memberikan interpretasi prediksi curah hujan.
