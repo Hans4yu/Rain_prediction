@@ -70,7 +70,7 @@ def get_gemini_status():
     return gemini_available
 
 def generate_ai_explanation(rainfall, tavg, rh_avg, category, model_name):
-    """Generate AI-powered explanation using Google Gemini"""
+    """Generate AI-powered explanation using Google Gemini for single model"""
     if not gemini_available:
         return None
     
@@ -103,6 +103,60 @@ def generate_ai_explanation(rainfall, tavg, rh_avg, category, model_name):
     
     except Exception as e:
         print(f"Error generating AI explanation: {e}")
+        return None
+
+def generate_comparison_explanation(lstm_result, prophet_result, tavg, rh_avg):
+    """Generate AI-powered comparison explanation for both models"""
+    if not gemini_available:
+        return None
+    
+    try:
+        model = genai.GenerativeModel('gemma-3-4b-it')
+        
+        lstm_rainfall = float(lstm_result['prediction'])
+        prophet_rainfall = float(prophet_result['prediction'])
+        diff = abs(lstm_rainfall - prophet_rainfall)
+        avg_rainfall = (lstm_rainfall + prophet_rainfall) / 2
+        
+        prompt = f"""
+        Anda adalah ahli meteorologi yang membandingkan hasil prediksi dari dua model curah hujan.
+        
+        Data Input:
+        - Lokasi: Stasiun Meteorologi Citeko, Kabupaten Bogor
+        - Suhu Rata-rata: {tavg}°C
+        - Kelembapan Rata-rata: {rh_avg}%
+        
+        Hasil Prediksi:
+        1. Model LSTM (Deep Learning):
+           - Prediksi: {lstm_rainfall:.2f} mm/hari
+           - Kategori: {lstm_result['category']}
+        
+        2. Model Prophet (Time Series):
+           - Prediksi: {prophet_rainfall:.2f} mm/hari
+           - Kategori: {prophet_result['category']}
+        
+        Perbedaan: {diff:.2f} mm/hari
+        Rata-rata: {avg_rainfall:.2f} mm/hari
+        
+        Berikan analisis yang mencakup:
+        1. **Interpretasi Hasil LSTM**: Apa yang dikatakan model LSTM tentang curah hujan?
+        2. **Interpretasi Hasil Prophet**: Apa yang dikatakan model Prophet tentang curah hujan?
+        3. **Perbandingan Kedua Model**: Mengapa ada perbedaan? Model mana yang lebih reliable dalam kondisi ini?
+        4. **Kesimpulan & Rekomendasi**: Prediksi mana yang sebaiknya digunakan? Saran praktis untuk masyarakat.
+        5. **Hubungan dengan Kondisi Cuaca**: Bagaimana suhu dan kelembapan mempengaruhi hasil prediksi.
+        
+        Format jawaban:
+        - Gunakan subjudul untuk setiap bagian (misal: **Hasil LSTM**, **Hasil Prophet**, dll)
+        - Bahasa Indonesia yang jelas dan mudah dipahami
+        - Maksimal 300 kata
+        - Berikan insight yang actionable
+        """
+        
+        response = model.generate_content(prompt)
+        return response.text
+    
+    except Exception as e:
+        print(f"Error generating comparison explanation: {e}")
         return None
 
 def predict_lstm(tavg, rh_avg):

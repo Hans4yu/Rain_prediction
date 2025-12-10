@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import pandas as pd
 import numpy as np
-from utils import load_data, predict_lstm, predict_prophet, get_rain_category, generate_ai_explanation, get_gemini_status
+from utils import load_data, predict_lstm, predict_prophet, get_rain_category, generate_ai_explanation, generate_comparison_explanation, get_gemini_status
 import os
 import gc
 
@@ -109,14 +109,20 @@ def predict():
                     'desc': desc
                 }
             
-            # AI Explanation (using the primary model result)
+            # AI Explanation
             if get_gemini_status():
-                primary_pred = float(result['lstm']['prediction']) if 'lstm' in result else float(result['prophet']['prediction'])
-                primary_cat = result['lstm']['category'] if 'lstm' in result else result['prophet']['category']
-                model_name = "LSTM" if 'lstm' in result else "Prophet"
-                
-                explanation = generate_ai_explanation(primary_pred, tavg, rh_avg, primary_cat, model_name)
-                result['ai_explanation'] = explanation
+                if model_type == 'both' and 'lstm' in result and 'prophet' in result:
+                    # Generate comparison explanation for both models
+                    explanation = generate_comparison_explanation(result['lstm'], result['prophet'], tavg, rh_avg)
+                    result['ai_explanation'] = explanation
+                else:
+                    # Generate single model explanation
+                    primary_pred = float(result['lstm']['prediction']) if 'lstm' in result else float(result['prophet']['prediction'])
+                    primary_cat = result['lstm']['category'] if 'lstm' in result else result['prophet']['category']
+                    model_name = "LSTM" if 'lstm' in result else "Prophet"
+                    
+                    explanation = generate_ai_explanation(primary_pred, tavg, rh_avg, primary_cat, model_name)
+                    result['ai_explanation'] = explanation
             
             # Force garbage collection untuk free up memory
             gc.collect()
