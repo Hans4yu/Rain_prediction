@@ -51,3 +51,5 @@ Thumbs.db
 .ipynb
 # model/*.keras # Optional: if models are too large for git (use git-lfs if needed)
 # model/*.joblib # Optional: if models are too large for git
+202210715109_finalcurahhujan.py
+colab_export_script.py

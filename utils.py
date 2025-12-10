@@ -36,8 +36,10 @@ try:
     if GOOGLE_API_KEY:
         genai.configure(api_key=GOOGLE_API_KEY)
         gemini_available = True
+        print("Gemini AI configured successfully.")
     else:
         gemini_available = False
+        print("GOOGLE_API_KEY not found in environment variables.")
 except Exception as e:
     gemini_available = False
     print(f"Gemini AI tidak tersedia: {e}")
@@ -72,10 +74,17 @@ def get_gemini_status():
 def generate_ai_explanation(rainfall, tavg, rh_avg, category, model_name):
     """Generate AI-powered explanation using Google Gemini for single model"""
     if not gemini_available:
+        print("Gemini not available for explanation.")
         return None
     
     try:
-        model = genai.GenerativeModel('gemma-3-4b-it')
+        # Note: Ensure 'gemma-3-4b-it' is available in your API tier. 
+        # Fallback to 'gemini-1.5-flash' if needed.
+        try:
+            model = genai.GenerativeModel('gemma-3-4b-it')
+        except:
+            print("Model gemma-3-4b-it not found, falling back to gemini-1.5-flash")
+            model = genai.GenerativeModel('gemini-1.5-flash')
         
         prompt = f"""
         Anda adalah ahli meteorologi yang memberikan interpretasi prediksi curah hujan.
@@ -108,10 +117,15 @@ def generate_ai_explanation(rainfall, tavg, rh_avg, category, model_name):
 def generate_comparison_explanation(lstm_result, prophet_result, tavg, rh_avg):
     """Generate AI-powered comparison explanation for both models"""
     if not gemini_available:
+        print("Gemini not available for comparison.")
         return None
     
     try:
-        model = genai.GenerativeModel('gemma-3-4b-it')
+        try:
+            model = genai.GenerativeModel('gemma-3-4b-it')
+        except:
+            print("Model gemma-3-4b-it not found, falling back to gemini-1.5-flash")
+            model = genai.GenerativeModel('gemini-1.5-flash')
         
         lstm_rainfall = float(lstm_result['prediction'])
         prophet_rainfall = float(prophet_result['prediction'])

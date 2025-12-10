@@ -1,13 +1,55 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="scroll-smooth">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prediksi Curah Hujan - Citeko</title>
 
+    <!-- Dark Mode Init Script (Prevent FOUC) -->
+    <script>
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0f172a', // Slate 900
+                        accent: '#0ea5e9', // Sky 500
+                        secondary: '#64748b', // Slate 500
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'marquee': 'marquee 25s linear infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        marquee: {
+                            '0%': { transform: 'translateX(100%)' },
+                            '100%': { transform: 'translateX(-100%)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -18,137 +60,298 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Marked.js for Markdown parsing -->
+    <!-- Marked.js -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
-    <!-- Leaflet CSS & JS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
+            background-color: #f8fafc;
+            color: #1e293b;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        .dark body {
+            background-color: #0f172a;
+            color: #f1f5f9;
         }
 
-        .glass-nav {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .dark ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
         }
 
-        .nav-link {
-            position: relative;
-            color: #4b5563;
-            transition: color 0.3s ease;
+        /* Scroll Reveal Animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
         }
 
-        .nav-link:hover {
-            color: #2563eb;
+        /* Glassmorphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .dark .glass {
+            background: rgba(15, 23, 42, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: -4px;
-            left: 0;
-            background-color: #2563eb;
-            transition: width 0.3s ease;
-        }
-
-        .nav-link:hover::after {
-            width: 100%;
-        }
-
-        .nav-link.active {
-            color: #2563eb;
-            font-weight: 600;
-        }
-
-        .nav-link.active::after {
-            width: 100%;
+        /* Interactive Text Effect */
+        .interactive-text {
+            transition: transform 0.1s ease-out;
         }
     </style>
 </head>
 
-<body class="text-gray-800 min-h-screen flex flex-col">
+<body class="flex flex-col min-h-screen dark:bg-slate-900 dark:text-white transition-colors duration-300">
 
-    <!-- Navigation -->
-    <nav class="glass-nav fixed w-full z-50 top-0">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <a href="/" class="flex-shrink-0 flex items-center gap-2">
-                        <i class="fa-solid fa-cloud-showers-heavy text-blue-600 text-2xl"></i>
-                        <span class="font-bold text-xl text-gray-900">Rain<span
-                                class="text-blue-600">Citeko</span></span>
-                    </a>
+    <!-- Header -->
+    <header class="fixed w-full top-0 z-50 glass transition-all duration-300" id="navbar">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center gap-2">
+                    <div class="w-8 h-8 bg-accent rounded-lg flex items-center justify-center text-white">
+                        <i class="fa-solid fa-cloud-rain"></i>
+                    </div>
+                    <span class="font-bold text-xl tracking-tight text-primary dark:text-white">Rain<span class="text-accent">Citeko</span></span>
                 </div>
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="/" class="nav-link {% if request.path == '/' %}active{% endif %}">
-                        <i class="fa-solid fa-home mr-1"></i> Home
-                    </a>
-                    <a href="/data" class="nav-link {% if request.path == '/data' %}active{% endif %}">
-                        <i class="fa-solid fa-database mr-1"></i> Data
-                    </a>
-                    <a href="/evaluation" class="nav-link {% if request.path == '/evaluation' %}active{% endif %}">
-                        <i class="fa-solid fa-chart-line mr-1"></i> Evaluasi
-                    </a>
-                    <a href="/predict" class="nav-link {% if request.path == '/predict' %}active{% endif %}">
-                        <i class="fa-solid fa-crystal-ball mr-1"></i> Prediksi
-                    </a>
-                </div>
-                <!-- Mobile menu button -->
-                <div class="md:hidden flex items-center">
-                    <button id="mobile-menu-btn" class="text-gray-600 hover:text-gray-900 focus:outline-none">
-                        <i class="fa-solid fa-bars text-2xl"></i>
+
+                <!-- Desktop Menu -->
+                <nav class="hidden md:flex items-center gap-2">
+                    <a href="{{ url_for('home') }}" class="{{ 'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' if request.endpoint == 'home' else 'px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:text-blue-400 dark:hover:bg-slate-800 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-slate-700' }}">Beranda</a>
+                    <a href="{{ url_for('data') }}" class="{{ 'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' if request.endpoint == 'data' else 'px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:text-blue-400 dark:hover:bg-slate-800 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-slate-700' }}">Data</a>
+                    <a href="{{ url_for('evaluation') }}" class="{{ 'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' if request.endpoint == 'evaluation' else 'px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:text-blue-400 dark:hover:bg-slate-800 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-slate-700' }}">Evaluasi</a>
+                    
+                    <div class="h-6 w-px bg-gray-200 dark:bg-slate-700 mx-2"></div>
+
+                    <a href="{{ url_for('predict') }}" class="px-5 py-2.5 rounded-full bg-blue-600 text-white text-sm font-semibold shadow-md hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900">Prediksi</a>
+                    
+                    <!-- Dark Mode Toggle (Desktop) -->
+                    <button id="theme-toggle" class="ml-2 p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-slate-700 transition-colors">
+                        <i class="fa-solid fa-moon hidden dark:block"></i>
+                        <i class="fa-solid fa-sun block dark:hidden"></i>
+                    </button>
+                </nav>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center gap-4">
+                    <!-- Dark Mode Toggle (Mobile) -->
+                    <button id="theme-toggle-mobile" class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-slate-800 focus:outline-none transition-colors">
+                        <i class="fa-solid fa-moon hidden dark:block"></i>
+                        <i class="fa-solid fa-sun block dark:hidden"></i>
+                    </button>
+                    
+                    <button id="mobile-menu-btn" class="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-white focus:outline-none">
+                        <i class="fa-solid fa-bars text-xl"></i>
                     </button>
                 </div>
             </div>
         </div>
+
         <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
-            <a href="/" class="block px-4 py-2 text-gray-700 hover:bg-gray-50">Home</a>
-            <a href="/data" class="block px-4 py-2 text-gray-700 hover:bg-gray-50">Data</a>
-            <a href="/evaluation" class="block px-4 py-2 text-gray-700 hover:bg-gray-50">Evaluasi</a>
-            <a href="/predict" class="block px-4 py-2 text-gray-700 hover:bg-gray-50">Prediksi</a>
+        <div id="mobile-menu" class="hidden md:hidden bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 absolute w-full">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 shadow-lg">
+                <a href="{{ url_for('home') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-50 dark:hover:bg-slate-800">Beranda</a>
+                <a href="{{ url_for('data') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-50 dark:hover:bg-slate-800">Data</a>
+                <a href="{{ url_for('evaluation') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-50 dark:hover:bg-slate-800">Evaluasi</a>
+                <a href="{{ url_for('predict') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-50 dark:hover:bg-slate-800">Prediksi</a>
+            </div>
         </div>
-    </nav>
+    </header>
 
     <!-- Main Content -->
-    <main class="flex-grow pt-20 pb-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+    <main class="flex-grow pt-20 pb-12 px-4 sm:px-6 lg:px-8 container mx-auto">
         {% block content %}{% endblock %}
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 mt-auto">
-        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="mb-4 md:mb-0">
-                    <p class="text-gray-500 text-sm">© 2025 Stasiun Meteorologi Citeko - Rain Citeko</p>
+    <footer class="bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-400 mt-auto border-t border-gray-200 dark:border-slate-800 transition-colors duration-300">
+        <div class="container mx-auto px-4 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center text-white">
+                            <i class="fa-solid fa-cloud-rain"></i>
+                        </div>
+                        <span class="font-bold text-xl tracking-tight text-gray-900 dark:text-white">Rain<span class="text-blue-600 dark:text-blue-400">Citeko</span></span>
+                    </div>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm leading-relaxed max-w-md">
+                        Sistem prediksi curah hujan berbasis Deep Learning untuk kawasan Citeko, Bogor. Menggabungkan teknologi LSTM dan Prophet untuk akurasi maksimal demi kesiapsiagaan bencana.
+                    </p>
                 </div>
-                <div class="flex space-x-6">
-                    <a href="#" class="text-gray-400 hover:text-gray-500">
-                        <span class="sr-only">GitHub</span>
-                        <i class="fa-brands fa-github text-xl"></i>
-                    </a>
+                
+                <div>
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-gray-900 dark:text-white mb-4">Navigasi</h3>
+                    <ul class="space-y-2 text-sm text-gray-500 dark:text-gray-400">
+                        <li><a href="{{ url_for('home') }}" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Beranda</a></li>
+                        <li><a href="{{ url_for('data') }}" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Data Historis</a></li>
+                        <li><a href="{{ url_for('evaluation') }}" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Evaluasi Model</a></li>
+                        <li><a href="{{ url_for('predict') }}" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Prediksi Sekarang</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-gray-900 dark:text-white mb-4">Hubungi Kami</h3>
+                    <ul class="space-y-2 text-sm text-gray-500 dark:text-gray-400">
+                        <li class="flex items-center"><i class="fa-solid fa-envelope w-5 text-blue-600 dark:text-blue-400"></i> info@rainciteko.id</li>
+                        <li class="flex items-center"><i class="fa-solid fa-location-dot w-5 text-blue-600 dark:text-blue-400"></i> Citeko, Cisarua, Bogor</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-100 dark:border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-sm text-gray-400">© 2025 RainCiteko. All rights reserved.</p>
+                <div class="flex space-x-6 mt-4 md:mt-0">
+<a href="https://github.com/hans4yu"
+   target="_blank"
+   rel="noopener noreferrer"
+   aria-label="GitHub — opens in new tab"
+   class="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+   <i class="fa-brands fa-github text-xl"></i>
+</a>
+
+<a href="https://www.linkedin.com/in/farhanabdulm/"
+   target="_blank"
+   rel="noopener noreferrer"
+   aria-label="LinkedIn — opens in new tab"
+   class="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+   <i class="fa-brands fa-linkedin text-xl"></i>
+</a>
+
+<a href="https://www.instagram.com/hanz_code/"
+   target="_blank"
+   rel="noopener noreferrer"
+   aria-label="Instagram — opens in new tab"
+   class="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+   <i class="fa-brands fa-instagram text-xl"></i>
+</a>
+
                 </div>
             </div>
         </div>
     </footer>
 
+    <!-- Scripts -->
     <script>
-        // Mobile menu toggle
+        // Mobile Menu Toggle
         const btn = document.getElementById('mobile-menu-btn');
         const menu = document.getElementById('mobile-menu');
 
-        btn.addEventListener('click', () => {
-            menu.classList.toggle('hidden');
+        if (btn && menu) {
+            btn.addEventListener('click', () => {
+                menu.classList.toggle('hidden');
+            });
+        }
+
+        // Dark Mode Logic
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeToggleMobileBtn = document.getElementById('theme-toggle-mobile');
+        
+        function toggleTheme() {
+            // if set via local storage previously
+            if (localStorage.getItem('color-theme')) {
+                if (localStorage.getItem('color-theme') === 'light') {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                }
+            } else {
+                // if NOT set via local storage previously
+                if (document.documentElement.classList.contains('dark')) {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                } else {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                }
+            }
+        }
+
+        if (themeToggleBtn) themeToggleBtn.addEventListener('click', toggleTheme);
+        if (themeToggleMobileBtn) themeToggleMobileBtn.addEventListener('click', toggleTheme);
+
+        // Lazy Loading Observer
+        document.addEventListener("DOMContentLoaded", function() {
+            const lazyImages = [].slice.call(document.querySelectorAll("img.lazy"));
+
+            if ("IntersectionObserver" in window) {
+                let lazyImageObserver = new IntersectionObserver(function(entries, observer) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            let lazyImage = entry.target;
+                            lazyImage.src = lazyImage.dataset.src;
+                            lazyImage.classList.remove("lazy");
+                            lazyImage.classList.add("opacity-100"); // Fade in effect
+                            lazyImageObserver.unobserve(lazyImage);
+                        }
+                    });
+                });
+
+                lazyImages.forEach(function(lazyImage) {
+                    lazyImageObserver.observe(lazyImage);
+                });
+            }
         });
+
+        // Parallax / Tilt Effect for Interactive Text
+        document.addEventListener('mousemove', (e) => {
+            const texts = document.querySelectorAll('.interactive-text');
+            texts.forEach(text => {
+                const speed = text.getAttribute('data-speed') || 2;
+                const x = (window.innerWidth - e.pageX * speed) / 100;
+                const y = (window.innerHeight - e.pageY * speed) / 100;
+                text.style.transform = `translateX(${x}px) translateY(${y}px)`;
+            });
+        });
+
+        // Scroll Reveal Animation
+        function reveal() {
+            var reveals = document.querySelectorAll(".reveal");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                var elementVisible = 150;
+                if (elementTop < windowHeight - elementVisible) {
+                    reveals[i].classList.add("active");
+                }
+            }
+        }
+        window.addEventListener("scroll", reveal);
+        // Trigger once on load
+        reveal();
     </script>
     {% block scripts %}{% endblock %}
 </body>
-
 </html>

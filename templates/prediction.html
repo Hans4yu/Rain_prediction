@@ -1,121 +1,92 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto space-y-8">
-    <div class="text-center">
-        <h1 class="text-3xl font-bold text-gray-900">🔮 Prediksi Curah Hujan</h1>
-        <p class="mt-2 text-gray-600">Masukkan parameter cuaca untuk mendapatkan prediksi curah hujan.</p>
+<div class="max-w-4xl mx-auto animate-fade-in">
+    <div class="text-center mb-10">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white sm:text-4xl">Prediksi Curah Hujan</h1>
+        <p class="mt-3 text-xl text-gray-500 dark:text-gray-400">Masukkan data suhu dan kelembapan untuk mendapatkan prediksi.</p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <!-- Input Form -->
-        <div class="md:col-span-1 bg-white shadow rounded-lg p-6 h-fit">
-            <h2 class="text-lg font-semibold mb-4 text-gray-800">📝 Input Data</h2>
-            <form id="predictionForm" class="space-y-4">
-                <div>
-                    <label for="tavg" class="block text-sm font-medium text-gray-700">Suhu Rata-rata (°C)</label>
-                    <input type="number" step="0.1" id="tavg" name="tavg" value="25.0" min="15" max="35" required
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border">
+    <div class="bg-white dark:bg-slate-900 shadow-xl rounded-2xl overflow-hidden dark:border dark:border-gray-700 reveal">
+        <div class="p-6 sm:p-10">
+            <form id="prediction-form" class="space-y-6">
+                <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+                    <div>
+                        <label for="tavg" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Suhu Rata-rata (°C)</label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-temperature-half text-gray-400 dark:text-gray-500"></i>
+                            </div>
+                            <input type="number" step="0.1" name="tavg" id="tavg" required class="focus:ring-accent focus:border-accent block w-full pl-10 sm:text-sm border-gray-300 dark:border-gray-600 rounded-md py-3 dark:bg-slate-800 dark:text-white dark:placeholder-gray-500" placeholder="Contoh: 25.5">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="rh_avg" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Kelembapan Rata-rata (%)</label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-droplet text-gray-400 dark:text-gray-500"></i>
+                            </div>
+                            <input type="number" step="0.1" name="rh_avg" id="rh_avg" required class="focus:ring-accent focus:border-accent block w-full pl-10 sm:text-sm border-gray-300 dark:border-gray-600 rounded-md py-3 dark:bg-slate-800 dark:text-white dark:placeholder-gray-500" placeholder="Contoh: 80.0">
+                        </div>
+                    </div>
                 </div>
+
                 <div>
-                    <label for="rh_avg" class="block text-sm font-medium text-gray-700">Kelembapan (%)</label>
-                    <input type="number" step="1.0" id="rh_avg" name="rh_avg" value="80.0" min="40" max="100" required
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Pilih Model</label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="model" value="lstm" class="peer sr-only">
+                            <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-4 text-center hover:bg-gray-50 dark:hover:bg-slate-800 peer-checked:border-accent peer-checked:bg-sky-50 dark:peer-checked:bg-sky-900/20 peer-checked:text-accent transition-all dark:text-gray-300">
+                                <span class="font-medium">LSTM</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="model" value="prophet" class="peer sr-only">
+                            <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-4 text-center hover:bg-gray-50 dark:hover:bg-slate-800 peer-checked:border-accent peer-checked:bg-sky-50 dark:peer-checked:bg-sky-900/20 peer-checked:text-accent transition-all dark:text-gray-300">
+                                <span class="font-medium">Prophet</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="model" value="both" class="peer sr-only" checked>
+                            <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-4 text-center hover:bg-gray-50 dark:hover:bg-slate-800 peer-checked:border-accent peer-checked:bg-sky-50 dark:peer-checked:bg-sky-900/20 peer-checked:text-accent transition-all dark:text-gray-300">
+                                <span class="font-medium">Keduanya</span>
+                            </div>
+                        </label>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Model</label>
-                    <select id="model" name="model"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border">
-                        <option value="both">Kedua Model</option>
-                        <option value="lstm">LSTM</option>
-                        <option value="prophet">Prophet</option>
-                    </select>
-                </div>
-                <button type="submit"
-                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150">
-                    <span id="btnText">🚀 Prediksi</span>
-                    <i id="btnSpinner" class="fa-solid fa-circle-notch fa-spin ml-2 hidden"></i>
+
+                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-accent hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors">
+                    Proses Prediksi
                 </button>
             </form>
         </div>
+    </div>
 
-        <!-- Results -->
-        <div class="md:col-span-2 space-y-6">
-            <!-- Initial State -->
-            <div id="initialState" class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-lg">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <i class="fa-solid fa-info-circle text-blue-500 text-xl"></i>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm text-blue-700">
-                            Silakan masukkan nilai suhu dan kelembapan, lalu klik tombol "Prediksi" untuk melihat hasil.
-                        </p>
-                    </div>
+    <!-- Results Section -->
+    <div id="results-container" class="mt-10 hidden space-y-8">
+        
+        <!-- Skeleton Loader -->
+        <div id="skeleton-loader" class="hidden animate-pulse space-y-4">
+            <div class="h-40 bg-gray-200 dark:bg-slate-800 rounded-xl"></div>
+            <div class="h-20 bg-gray-200 dark:bg-slate-800 rounded-xl"></div>
+        </div>
+
+        <!-- Result Cards -->
+        <div id="prediction-results" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Cards will be injected here -->
+        </div>
+
+        <!-- AI Explanation -->
+        <div id="ai-explanation" class="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6 border-l-4 border-purple-500 hidden dark:border-gray-700">
+            <div class="flex items-center mb-4">
+                <div class="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-lg mr-3">
+                    <i class="fa-solid fa-robot text-purple-600 dark:text-purple-400 text-xl"></i>
                 </div>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Analisis AI Assistant</h3>
             </div>
-
-            <!-- Error Message -->
-            <div id="errorMessage" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg">
-            </div>
-
-            <!-- Result Container -->
-            <div id="resultContainer" class="hidden space-y-6">
-
-                <!-- LSTM Result -->
-                <div id="lstmResult" class="hidden bg-white shadow rounded-lg overflow-hidden border border-gray-100">
-                    <div class="bg-blue-600 px-4 py-2 flex justify-between items-center">
-                        <h3 class="text-white font-bold">🧠 LSTM Prediction</h3>
-                    </div>
-                    <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
-                        <div class="text-center">
-                            <p class="text-gray-500 text-sm uppercase tracking-wide">Curah Hujan</p>
-                            <p class="text-4xl font-extrabold text-gray-900 mt-1"><span id="lstmVal">0.00</span> <span
-                                    class="text-lg text-gray-500 font-normal">mm</span></p>
-                        </div>
-                        <div id="lstmCatBox" class="rounded-lg p-4 text-white text-center">
-                            <p class="font-bold text-lg" id="lstmCat">-</p>
-                            <p class="text-sm opacity-90" id="lstmDesc">-</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Prophet Result -->
-                <div id="prophetResult"
-                    class="hidden bg-white shadow rounded-lg overflow-hidden border border-gray-100">
-                    <div class="bg-purple-600 px-4 py-2 flex justify-between items-center">
-                        <h3 class="text-white font-bold">📈 Prophet Prediction</h3>
-                    </div>
-                    <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
-                        <div class="text-center">
-                            <p class="text-gray-500 text-sm uppercase tracking-wide">Curah Hujan</p>
-                            <p class="text-4xl font-extrabold text-gray-900 mt-1"><span id="prophetVal">0.00</span>
-                                <span class="text-lg text-gray-500 font-normal">mm</span>
-                            </p>
-                        </div>
-                        <div id="prophetCatBox" class="rounded-lg p-4 text-white text-center">
-                            <p class="font-bold text-lg" id="prophetCat">-</p>
-                            <p class="text-sm opacity-90" id="prophetDesc">-</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- AI Explanation -->
-                <div id="aiResult"
-                    class="hidden bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg p-6 border border-indigo-100 shadow-sm relative overflow-hidden">
-                    <div
-                        class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-indigo-100 rounded-full opacity-50 blur-xl">
-                    </div>
-                    <div class="relative z-10">
-                        <h3 class="flex items-center text-indigo-800 font-bold text-lg mb-3">
-                            <i class="fa-solid fa-robot mr-2"></i> Analisis AI (Gemma 3)
-                        </h3>
-                        <div class="prose prose-indigo text-gray-700 text-sm leading-relaxed" id="aiText">
-                            <!-- AI text goes here -->
-                        </div>
-                    </div>
-                </div>
-
+            <div id="ai-content" class="prose prose-sm max-w-none text-gray-600 dark:text-gray-300 dark:prose-invert">
+                <!-- AI content here -->
             </div>
         </div>
     </div>
@@ -124,110 +95,92 @@
 
 {% block scripts %}
 <script>
-    document.getElementById('predictionForm').addEventListener('submit', async function (e) {
-        e.preventDefault();
-
-        // UI States
-        const btn = this.querySelector('button');
-        const btnText = document.getElementById('btnText');
-        const btnSpinner = document.getElementById('btnSpinner');
-        const initialState = document.getElementById('initialState');
-        const resultContainer = document.getElementById('resultContainer');
-        const errorMessage = document.getElementById('errorMessage');
-
-        // Loading state
-        btn.disabled = true;
-        btnText.textContent = 'Memproses...';
-        btnSpinner.classList.remove('hidden');
-        errorMessage.classList.add('hidden');
-        initialState.classList.add('hidden');
-        resultContainer.classList.add('hidden');
-
-        try {
-            const formData = new FormData(this);
-            const data = Object.fromEntries(formData.entries());
-
-            const response = await fetch('/predict', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                resultContainer.classList.remove('hidden');
-
-                // Reset visibility
-                document.getElementById('lstmResult').classList.add('hidden');
-                document.getElementById('prophetResult').classList.add('hidden');
-                document.getElementById('aiResult').classList.add('hidden');
-
-                // Update LSTM
-                if (result.lstm) {
-                    const el = document.getElementById('lstmResult');
-                    el.classList.remove('hidden');
-                    document.getElementById('lstmVal').textContent = result.lstm.prediction;
-                    document.getElementById('lstmCat').textContent = result.lstm.category;
-                    document.getElementById('lstmDesc').textContent = result.lstm.desc;
-
-                    // Style category box
-                    const catBox = document.getElementById('lstmCatBox');
-                    catBox.className = `rounded-lg p-4 text-white text-center shadow-sm transition-colors duration-300`;
-                    const colorMap = {
-                        'text-blue-400': 'bg-blue-400',
-                        'text-green-500': 'bg-green-500',
-                        'text-yellow-500': 'bg-yellow-500',
-                        'text-red-500': 'bg-red-500',
-                        'text-purple-600': 'bg-purple-600',
-                        'text-red-700': 'bg-red-700'
-                    };
-                    catBox.classList.add(colorMap[result.lstm.color] || 'bg-gray-500');
-                }
-
-                // Update Prophet
-                if (result.prophet) {
-                    const el = document.getElementById('prophetResult');
-                    el.classList.remove('hidden');
-                    document.getElementById('prophetVal').textContent = result.prophet.prediction;
-                    document.getElementById('prophetCat').textContent = result.prophet.category;
-                    document.getElementById('prophetDesc').textContent = result.prophet.desc;
-
-                    const catBox = document.getElementById('prophetCatBox');
-                    catBox.className = `rounded-lg p-4 text-white text-center shadow-sm transition-colors duration-300`;
-                    const colorMap = {
-                        'text-blue-400': 'bg-blue-400',
-                        'text-green-500': 'bg-green-500',
-                        'text-yellow-500': 'bg-yellow-500',
-                        'text-red-500': 'bg-red-500',
-                        'text-purple-600': 'bg-purple-600',
-                        'text-red-700': 'bg-red-700'
-                    };
-                    catBox.classList.add(colorMap[result.prophet.color] || 'bg-gray-500');
-                }
-
-                // Update AI
-                if (result.ai_explanation) {
-                    const el = document.getElementById('aiResult');
-                    el.classList.remove('hidden');
-                    // Parse markdown to HTML
-                    document.getElementById('aiText').innerHTML = marked.parse(result.ai_explanation);
-                }
-
-            } else {
-                throw new Error(result.error || 'Terjadi kesalahan saat memproses prediksi.');
-            }
-
-        } catch (error) {
-            errorMessage.textContent = error.message;
-            errorMessage.classList.remove('hidden');
-        } finally {
-            btn.disabled = false;
-            btnText.textContent = '🚀 Prediksi';
-            btnSpinner.classList.add('hidden');
+document.getElementById('prediction-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const form = e.target;
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+    
+    // UI States
+    const resultsContainer = document.getElementById('results-container');
+    const skeletonLoader = document.getElementById('skeleton-loader');
+    const predictionResults = document.getElementById('prediction-results');
+    const aiExplanation = document.getElementById('ai-explanation');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    
+    // Reset & Show Loading
+    resultsContainer.classList.remove('hidden');
+    skeletonLoader.classList.remove('hidden');
+    predictionResults.innerHTML = '';
+    aiExplanation.classList.add('hidden');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Memproses...';
+    
+    try {
+        const response = await fetch('/predict', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        // Hide Skeleton
+        skeletonLoader.classList.add('hidden');
+        
+        // Render Cards
+        if (result.lstm) {
+            predictionResults.innerHTML += createCard('LSTM', result.lstm);
         }
-    });
+        if (result.prophet) {
+            predictionResults.innerHTML += createCard('Prophet', result.prophet);
+        }
+        
+        // Render AI Explanation
+        if (result.ai_explanation) {
+            aiExplanation.classList.remove('hidden');
+            document.getElementById('ai-content').innerHTML = marked.parse(result.ai_explanation);
+        }
+        
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Terjadi kesalahan saat memproses prediksi.');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Proses Prediksi';
+    }
+});
+
+function createCard(modelName, data) {
+    return `
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden transform transition-all hover:scale-105 duration-300 dark:border dark:border-gray-700">
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">${modelName} Model</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Prediksi Curah Hujan</p>
+                    </div>
+                    <div class="bg-gray-100 dark:bg-slate-800 p-2 rounded-lg">
+                        <i class="fa-solid fa-cloud-rain text-accent"></i>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <span class="text-4xl font-bold text-gray-900 dark:text-white">${data.prediction}</span>
+                    <span class="text-gray-500 dark:text-gray-400 ml-1">mm/hari</span>
+                </div>
+                <div class="flex items-center p-3 bg-gray-50 dark:bg-slate-800 rounded-lg">
+                    <div class="flex-shrink-0 w-3 h-3 rounded-full ${data.color.replace('text-', 'bg-')} mr-3"></div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">${data.category}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">${data.desc}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
 </script>
 {% endblock %}

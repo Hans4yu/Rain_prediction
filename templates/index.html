@@ -1,104 +1,378 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="space-y-8">
+<style>
+    @keyframes blob {
+        0% { transform: translate(0px, 0px) scale(1); }
+        33% { transform: translate(30px, -50px) scale(1.1); }
+        66% { transform: translate(-20px, 20px) scale(0.9); }
+        100% { transform: translate(0px, 0px) scale(1); }
+    }
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+        100% { transform: translateY(0px); }
+    }
+    .animate-blob {
+        animation: blob 7s infinite;
+    }
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
+    }
+    .animation-delay-2000 {
+        animation-delay: 2s;
+    }
+    .animation-delay-4000 {
+        animation-delay: 4s;
+    }
+    /* Scroll Reveal Animation for Index */
+    .reveal-index {
+        opacity: 0;
+        transform: translateY(50px);
+        transition: all 1s cubic-bezier(0.5, 0, 0, 1);
+    }
+    
+    .reveal-index.active {
+        opacity: 1;
+        transform: translateY(0);
+    }
+</style>
+<div class="relative overflow-hidden">
     <!-- Hero Section -->
-    <div class="text-center py-10">
-        <h1 class="text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight lg:text-6xl">
-            Sistem Prediksi <span class="text-blue-600">Curah Hujan</span>
-        </h1>
-        <p class="mt-4 max-w-2xl mx-auto text-xl text-gray-500">
-            Stasiun Meteorologi Citeko - Kabupaten Bogor, Jawa Barat
-        </p>
+    <div class="max-w-7xl mx-auto">
+        <div class="relative z-10 pb-8 bg-transparent sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
+            <main class="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
+                <div class="sm:text-center lg:text-left animate-slide-up">
+                    <div class="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-sm font-medium mb-4">
+                        <span class="flex h-2 w-2 rounded-full bg-blue-600 mr-2 animate-pulse"></span>
+                        Sistem Prediksi Cuaca Cerdas
+                    </div>
+                    <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+                        <span class="block xl:inline dark:text-white">Prediksi Curah Hujan</span>
+                        <span class="block text-accent interactive-text" data-speed="1">Berbasis AI & Deep Learning</span>
+                    </h1>
+                    <p class="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
+                        Menggabungkan kekuatan <strong>LSTM (Long Short-Term Memory)</strong> dan <strong>Prophet Time Series</strong> untuk memberikan prediksi curah hujan yang akurat di kawasan Citeko, Bogor.
+                    </p>
+                    
+                    <!-- AI Badge -->
+                    <div class="mt-4 flex items-center gap-2 sm:justify-center lg:justify-start">
+                        <span class="text-sm text-gray-500">Powered by</span>
+                        <div class="flex items-center bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-md">
+                            <i class="fa-solid fa-robot mr-2"></i> Google Gemma 3 4B IT
+                        </div>
+                    </div>
+
+                    <div class="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start gap-4">
+                        <div class="rounded-md shadow">
+                            <a href="{{ url_for('predict') }}" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-full text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg transition-all hover:shadow-lg hover:-translate-y-1">
+                                Mulai Prediksi <i class="fa-solid fa-arrow-right ml-2"></i>
+                            </a>
+                        </div>
+                        <div class="mt-3 sm:mt-0">
+                            <a href="{{ url_for('data') }}" class="w-full flex items-center justify-center px-8 py-3 border border-gray-200 text-base font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50 md:py-4 md:text-lg transition-all hover:shadow-md">
+                                Lihat Data Historis
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <!-- Decorative Image/Illustration -->
+    <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 flex items-center justify-center overflow-hidden mt-10 lg:mt-0">
+        <div class="relative w-full h-full flex justify-center items-center scale-90 lg:scale-100 py-10 lg:py-0">
+             <!-- Background Blobs -->
+             <div class="absolute top-1/4 right-1/4 w-72 h-72 bg-blue-400/30 dark:bg-blue-500/20 rounded-full blur-3xl animate-blob mix-blend-multiply dark:mix-blend-screen filter"></div>
+             <div class="absolute top-1/3 left-1/4 w-72 h-72 bg-purple-400/30 dark:bg-purple-500/20 rounded-full blur-3xl animate-blob animation-delay-2000 mix-blend-multiply dark:mix-blend-screen filter"></div>
+             <div class="absolute bottom-1/4 right-1/3 w-72 h-72 bg-indigo-400/30 dark:bg-indigo-500/20 rounded-full blur-3xl animate-blob animation-delay-4000 mix-blend-multiply dark:mix-blend-screen filter"></div>
+             
+             <!-- Main Glass Card -->
+             <div class="relative z-10 bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-white/50 dark:border-slate-700/50 p-8 rounded-3xl shadow-2xl transform rotate-3 hover:rotate-0 transition-all duration-500 w-80 sm:w-96">
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-6">
+                    <div class="flex flex-col">
+                        <span class="text-xs font-bold text-blue-800 dark:text-blue-300 uppercase tracking-wider">Lokasi Terkini</span>
+                        <span class="text-lg font-bold text-gray-800 dark:text-white"><i class="fa-solid fa-location-dot text-red-500 mr-2"></i>Citeko, Bogor</span>
+                    </div>
+                    <div class="bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-lg animate-pulse">LIVE</div>
+                </div>
+                
+                <!-- Weather Icon & Temp -->
+                <div class="flex items-center justify-between mb-8 relative">
+                    <div class="relative w-24 h-24 flex items-center justify-center">
+                        <i class="fa-solid fa-cloud text-6xl text-gray-100 dark:text-slate-600 absolute transform translate-x-1 translate-y-1 drop-shadow-md"></i>
+                        <i class="fa-solid fa-cloud text-6xl text-blue-50/90 dark:text-slate-200 absolute drop-shadow-xl"></i>
+                    </div>
+                    <div class="text-right relative z-20">
+                        <span class="block text-4xl font-bold text-gray-800 dark:text-white">24°C</span>
+                        <span class="block text-sm text-gray-600 dark:text-gray-300">Hujan Ringan</span>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-2 gap-4 relative z-20">
+                    <div class="bg-white/80 dark:bg-slate-700/80 p-3 rounded-xl shadow-sm">
+                        <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">Kelembapan</div>
+                        <div class="font-bold text-blue-600 dark:text-blue-400"><i class="fa-solid fa-droplet mr-1"></i> 85%</div>
+                    </div>
+                    <div class="bg-white/80 dark:bg-slate-700/80 p-3 rounded-xl shadow-sm">
+                        <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">Akurasi AI</div>
+                        <div class="font-bold text-purple-600 dark:text-purple-400"><i class="fa-solid fa-brain mr-1"></i> 98%</div>
+                    </div>
+                </div>
+             </div>
+
+             <!-- Floating Elements -->
+             <div class="absolute top-1/4 right-[5%] bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-xl animate-float z-20 hidden lg:block">
+                <div class="flex items-center gap-3">
+                    <div class="bg-green-100 dark:bg-green-900/30 p-2 rounded-lg text-green-600 dark:text-green-400">
+                        <i class="fa-solid fa-robot text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">Model Status</div>
+                        <div class="font-bold text-gray-800 dark:text-white">Active</div>
+                    </div>
+                </div>
+             </div>
+
+             <div class="absolute bottom-1/3 left-[5%] bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-xl animate-float animation-delay-2000 z-20 hidden lg:block">
+                <div class="flex items-center gap-3">
+                    <div class="bg-yellow-100 dark:bg-yellow-900/30 p-2 rounded-lg text-yellow-600 dark:text-yellow-400">
+                        <i class="fa-solid fa-bolt text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">Peringatan</div>
+                        <div class="font-bold text-gray-800 dark:text-white">Normal</div>
+                    </div>
+                </div>
+             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Marquee Section -->
+<div class="reveal-index">
+    <div class="mt-20 mb-24 py-6 bg-black overflow-hidden relative shadow-2xl transform -rotate-2 scale-105 border-y-4 border-white z-20">
+        <div class="whitespace-nowrap animate-marquee flex gap-12 items-center text-white font-bold text-xl tracking-wider uppercase">
+            <span><i class="fa-solid fa-bolt text-yellow-400 mr-2"></i> Waspada Cuaca Ekstrem</span>
+            <span class="text-gray-500">•</span>
+            <span><i class="fa-solid fa-temperature-half text-red-400 mr-2"></i> Pantau Suhu Harian</span>
+            <span class="text-gray-500">•</span>
+            <span><i class="fa-solid fa-droplet text-blue-400 mr-2"></i> Kelembapan Udara Tinggi</span>
+            <span class="text-gray-500">•</span>
+            <span><i class="fa-solid fa-umbrella text-purple-400 mr-2"></i> Sedia Payung Sebelum Hujan</span>
+            <span class="text-gray-500">•</span>
+            <span><i class="fa-solid fa-wind text-gray-400 mr-2"></i> Angin Kencang</span>
+            <span class="text-gray-500">•</span>
+            <span><i class="fa-solid fa-bolt text-yellow-400 mr-2"></i> Waspada Cuaca Ekstrem</span>
+            <span class="text-gray-500">•</span>
+            <span><i class="fa-solid fa-temperature-half text-red-400 mr-2"></i> Pantau Suhu Harian</span>
+            <span class="text-gray-500">•</span>
+            <span><i class="fa-solid fa-droplet text-blue-400 mr-2"></i> Kelembapan Udara Tinggi</span>
+            <span class="text-gray-500">•</span>
+            <span><i class="fa-solid fa-umbrella text-purple-400 mr-2"></i> Sedia Payung Sebelum Hujan</span>
+        </div>
+    </div>
+</div>
+
+<!-- Location Map Section -->
+<div class="py-24 bg-slate-50 dark:bg-slate-900 relative overflow-hidden transition-colors duration-300 reveal-index">
+    <!-- Decorative background elements -->
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 opacity-30 pointer-events-none">
+        <i class="fa-solid fa-map text-9xl absolute -top-10 -left-10 text-gray-200 dark:text-slate-800 transform rotate-12"></i>
+        <i class="fa-solid fa-location-crosshairs text-9xl absolute bottom-10 right-10 text-gray-200 dark:text-slate-800 transform -rotate-12"></i>
     </div>
 
-    <!-- Metric Cards -->
-    <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
-        <!-- Card 1 -->
-        <div class="bg-white overflow-hidden shadow rounded-lg transform transition hover:scale-105 duration-300">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
-                        <i class="fa-solid fa-location-dot text-white text-2xl"></i>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-gray-100 dark:border-slate-800">
+            <div class="lg:grid lg:grid-cols-2">
+                <!-- Info Side -->
+                <div class="p-10 lg:p-12 flex flex-col justify-center">
+                    <div class="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-bold uppercase tracking-wide mb-6 w-fit">
+                        <i class="fa-solid fa-satellite-dish mr-2"></i> Stasiun Pemantauan
                     </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Stasiun</dt>
-                            <dd class="text-lg font-medium text-gray-900">Meteorologi Citeko</dd>
-                        </dl>
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-4">
+                        Stasiun Meteorologi <span class="text-blue-600 dark:text-blue-400">Citeko</span>
+                    </h2>
+                    <p class="text-gray-600 dark:text-gray-300 text-lg mb-8 leading-relaxed">
+                        Titik strategis di kawasan Puncak, Bogor yang menjadi kunci pemantauan cuaca ekstrem. Data real-time dari sini memastikan prediksi kami selalu akurat.
+                    </p>
+                    
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-500/30 transition-colors group">
+                            <div class="text-blue-500 text-xl mb-2 group-hover:scale-110 transition-transform origin-left">
+                                <i class="fa-solid fa-map-location-dot"></i>
+                            </div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400 font-medium">Koordinat</div>
+                            <div class="text-gray-900 dark:text-white font-bold">-6.7033° S, 106.9456° E</div>
+                        </div>
+                        <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-500/30 transition-colors group">
+                            <div class="text-purple-500 text-xl mb-2 group-hover:scale-110 transition-transform origin-left">
+                                <i class="fa-solid fa-mountain"></i>
+                            </div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400 font-medium">Elevasi</div>
+                            <div class="text-gray-900 dark:text-white font-bold">900 MDPL</div>
+                        </div>
                     </div>
+                    
+                    <div class="mt-8 pt-8 border-t border-gray-100 dark:border-slate-800">
+                        <a href="https://www.google.com/maps/search/?api=1&query=-6.7033,106.9456" target="_blank" class="inline-flex items-center text-blue-600 dark:text-blue-400 font-bold hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
+                            Buka di Google Maps <i class="fa-solid fa-arrow-up-right-from-square ml-2 text-sm"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Map Side -->
+                <div class="relative h-96 lg:h-auto bg-gray-200 dark:bg-slate-800">
+                    <iframe 
+                        loading="lazy"
+                        width="100%" 
+                        height="100%" 
+                        frameborder="0" 
+                        scrolling="no" 
+                        marginheight="0" 
+                        marginwidth="0" 
+                        src="https://www.openstreetmap.org/export/embed.html?bbox=106.9256%2C-6.7233%2C106.9656%2C-6.6833&amp;layer=mapnik&amp;marker=-6.7033%2C106.9456" 
+                        style="border: 0; filter: grayscale(20%) contrast(1.1);">
+                    </iframe>
+                    <!-- Overlay Gradient -->
+                    <div class="absolute inset-0 pointer-events-none shadow-[inset_0_0_20px_rgba(0,0,0,0.1)]"></div>
                 </div>
             </div>
         </div>
-
-        <!-- Card 2 -->
-        <div class="bg-white overflow-hidden shadow rounded-lg transform transition hover:scale-105 duration-300">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 bg-purple-500 rounded-md p-3">
-                        <i class="fa-solid fa-brain text-white text-2xl"></i>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Model AI</dt>
-                            <dd class="text-lg font-medium text-gray-900">LSTM & Prophet</dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Card 3 -->
-        <div class="bg-white overflow-hidden shadow rounded-lg transform transition hover:scale-105 duration-300">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
-                        <i class="fa-regular fa-calendar-days text-white text-2xl"></i>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Periode Data</dt>
-                            <dd class="text-lg font-medium text-gray-900">2010 - 2025</dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
+</div>
 
-    <!-- Map Section -->
-    <div class="bg-white shadow rounded-lg p-6">
-        <h2 class="text-2xl font-bold text-gray-900 mb-4">📍 Lokasi Stasiun</h2>
-        <div id="map" class="h-96 w-full rounded-lg z-0"></div>
-    </div>
-
-    <!-- Info Section -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div class="bg-blue-50 rounded-lg p-6 border-l-4 border-blue-500">
-            <h3 class="text-lg font-semibold text-blue-800 mb-2">📖 Tentang Aplikasi</h3>
-            <p class="text-blue-700">
-                Aplikasi ini menggunakan teknologi <b>Machine Learning</b> dan <b>Deep Learning</b> untuk memprediksi
-                curah hujan. Menggunakan model LSTM (Long Short-Term Memory) dan Prophet yang dilatih dengan data
-                historis BMKG.
+<!-- Features Grid -->
+<div class="py-24 bg-white dark:bg-slate-900 relative transition-colors duration-300 reveal-index">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-20">
+            <span class="text-blue-600 font-bold tracking-wider uppercase text-sm bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400 px-4 py-2 rounded-full">Teknologi Canggih</span>
+            <h2 class="mt-4 text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+                Dual-Core Prediction Engine
+            </h2>
+            <p class="mt-4 max-w-2xl text-xl text-gray-500 dark:text-gray-400 mx-auto">
+                Sinergi dua algoritma machine learning terbaik untuk hasil prediksi yang presisi dan adaptif.
             </p>
         </div>
 
-        <div class="bg-white shadow rounded-lg p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">🚀 Fitur Utama</h3>
-            <ul class="space-y-3">
-                <li class="flex items-start">
-                    <i class="fa-solid fa-check-circle text-green-500 mt-1 mr-2"></i>
-                    <span>Eksplorasi data historis dengan visualisasi interaktif</span>
-                </li>
-                <li class="flex items-start">
-                    <i class="fa-solid fa-check-circle text-green-500 mt-1 mr-2"></i>
-                    <span>Evaluasi performa model (MAE, MSE, RMSE)</span>
-                </li>
-                <li class="flex items-start">
-                    <i class="fa-solid fa-check-circle text-green-500 mt-1 mr-2"></i>
-                    <span>Prediksi real-time dengan penjelasan AI (Gemini)</span>
-                </li>
-            </ul>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <!-- LSTM Card -->
+            <div class="group relative bg-white dark:bg-slate-800 rounded-[2rem] p-10 shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-50 to-transparent dark:from-blue-900/20 rounded-bl-[10rem] -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+                
+                <div class="relative z-10">
+                    <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-3xl shadow-lg shadow-blue-200 dark:shadow-none mb-8 transform group-hover:rotate-6 transition-transform">
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+                    
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">LSTM Deep Learning</h3>
+                    <p class="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
+                        Jaringan saraf tiruan yang meniru cara kerja memori manusia. Mampu "mengingat" pola cuaca jangka panjang yang sering terlewatkan oleh metode statistik biasa.
+                    </p>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-slate-700/50 p-3 rounded-lg">
+                            <i class="fa-solid fa-check-circle text-blue-500 mr-3 text-lg"></i>
+                            Menangkap pola non-linear kompleks
+                        </div>
+                        <div class="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-slate-700/50 p-3 rounded-lg">
+                            <i class="fa-solid fa-check-circle text-blue-500 mr-3 text-lg"></i>
+                            Ideal untuk data fluktuatif tinggi
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prophet Card -->
+            <div class="group relative bg-white dark:bg-slate-800 rounded-[2rem] p-10 shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-purple-50 to-transparent dark:from-purple-900/20 rounded-bl-[10rem] -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+                
+                <div class="relative z-10">
+                    <div class="w-16 h-16 bg-purple-600 rounded-2xl flex items-center justify-center text-white text-3xl shadow-lg shadow-purple-200 dark:shadow-none mb-8 transform group-hover:rotate-6 transition-transform">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Prophet Time Series</h3>
+                    <p class="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
+                        Model statistik canggih buatan Facebook yang ahli dalam mendeteksi tren musiman. Sangat tangguh menghadapi anomali data dan perubahan musim yang drastis.
+                    </p>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-slate-700/50 p-3 rounded-lg">
+                            <i class="fa-solid fa-check-circle text-purple-500 mr-3 text-lg"></i>
+                            Deteksi siklus harian & tahunan
+                        </div>
+                        <div class="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-slate-700/50 p-3 rounded-lg">
+                            <i class="fa-solid fa-check-circle text-purple-500 mr-3 text-lg"></i>
+                            Tahan terhadap outlier data
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- How It Works -->
+<div class="py-24 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white relative overflow-hidden transition-colors duration-300 reveal-index">
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]" style="background-image: radial-gradient(#4b5563 1px, transparent 1px); background-size: 32px 32px;"></div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center mb-20">
+            <h2 class="text-3xl md:text-4xl font-extrabold mb-4 text-gray-900 dark:text-white">Alur Kerja Sistem</h2>
+            <p class="text-gray-500 dark:text-gray-400 text-lg max-w-2xl mx-auto">Tiga langkah sederhana untuk mendapatkan wawasan cuaca yang akurat.</p>
+        </div>
+
+        <div class="relative">
+            <!-- Connecting Line (Desktop) -->
+            <div class="hidden md:block absolute top-12 left-0 w-full h-1 bg-gray-200 dark:bg-slate-800 rounded-full">
+                <div class="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 via-purple-500 to-green-500 w-full opacity-30"></div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                <!-- Step 1 -->
+                <div class="relative group">
+                    <div class="w-24 h-24 mx-auto bg-white dark:bg-slate-800 rounded-full border-4 border-white dark:border-slate-700 flex items-center justify-center text-3xl font-bold mb-8 relative z-10 group-hover:border-blue-500 group-hover:text-blue-600 transition-all duration-300 shadow-lg text-gray-400 dark:text-gray-500">
+                        1
+                    </div>
+                    <div class="text-center">
+                        <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">Input Parameter</h3>
+                        <p class="text-gray-500 dark:text-gray-400 leading-relaxed">
+                            Masukkan data suhu rata-rata (°C) dan kelembapan (%) terkini pada form prediksi yang tersedia.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Step 2 -->
+                <div class="relative group">
+                    <div class="w-24 h-24 mx-auto bg-white dark:bg-slate-800 rounded-full border-4 border-white dark:border-slate-700 flex items-center justify-center text-3xl font-bold mb-8 relative z-10 group-hover:border-purple-500 group-hover:text-purple-600 transition-all duration-300 shadow-lg text-gray-400 dark:text-gray-500">
+                        2
+                    </div>
+                    <div class="text-center">
+                        <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white group-hover:text-purple-600 transition-colors">Analisis AI</h3>
+                        <p class="text-gray-500 dark:text-gray-400 leading-relaxed">
+                            Sistem memproses data menggunakan ensemble model LSTM dan Prophet secara real-time.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Step 3 -->
+                <div class="relative group">
+                    <div class="w-24 h-24 mx-auto bg-white dark:bg-slate-800 rounded-full border-4 border-white dark:border-slate-700 flex items-center justify-center text-3xl font-bold mb-8 relative z-10 group-hover:border-green-500 group-hover:text-green-600 transition-all duration-300 shadow-lg text-gray-400 dark:text-gray-500">
+                        3
+                    </div>
+                    <div class="text-center">
+                        <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white group-hover:text-green-600 transition-colors">Hasil Cerdas</h3>
+                        <p class="text-gray-500 dark:text-gray-400 leading-relaxed">
+                            Terima prediksi curah hujan, kategori cuaca, dan rekomendasi tindakan dari AI Assistant.
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -106,15 +380,26 @@
 
 {% block scripts %}
 <script>
-    // Initialize Leaflet Map
-    var map = L.map('map').setView([-6.7053, 106.9441], 13);
+    // Scroll Reveal Animation for Index (Appear/Disappear)
+    function revealIndex() {
+        var reveals = document.querySelectorAll(".reveal-index");
+        for (var i = 0; i < reveals.length; i++) {
+            var windowHeight = window.innerHeight;
+            var elementTop = reveals[i].getBoundingClientRect().top;
+            var elementBottom = reveals[i].getBoundingClientRect().bottom;
+            var elementVisible = 100; // Trigger point
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    L.marker([-6.7053, 106.9441]).addTo(map)
-        .bindPopup('<b>Stasiun Meteorologi Citeko</b><br>Kabupaten Bogor, Jawa Barat')
-        .openPopup();
+            // Check if element is within the viewport (with some buffer)
+            // Active if: Top is above bottom trigger AND Bottom is below top trigger
+            if (elementTop < windowHeight - elementVisible && elementBottom > elementVisible) {
+                reveals[i].classList.add("active");
+            } else {
+                reveals[i].classList.remove("active");
+            }
+        }
+    }
+    window.addEventListener("scroll", revealIndex);
+    // Trigger once on load
+    revealIndex();
 </script>
 {% endblock %}

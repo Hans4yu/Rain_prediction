@@ -1,71 +1,85 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="space-y-8">
-    <h1 class="text-3xl font-bold text-gray-900">📈 Evaluasi Model</h1>
+<div class="space-y-8 animate-fade-in">
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Evaluasi Model</h1>
+        <p class="mt-2 text-gray-600 dark:text-gray-400">Perbandingan performa model LSTM dan Prophet</p>
+    </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Metrics Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 reveal">
         <!-- LSTM Metrics -->
-        <div class="bg-white rounded-lg shadow overflow-hidden">
-            <div class="bg-blue-600 px-6 py-4">
-                <h2 class="text-xl font-bold text-white">🧠 Model LSTM</h2>
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 dark:bg-slate-900 dark:border dark:border-gray-700">
+            <div class="bg-blue-600 px-6 py-4 flex justify-between items-center dark:bg-blue-700">
+                <h2 class="text-xl font-bold text-white"><i class="fa-solid fa-brain mr-2"></i>Model LSTM</h2>
+                <span class="text-blue-100 text-sm bg-blue-700 px-2 py-1 rounded">Deep Learning</span>
             </div>
             <div class="p-6">
                 <div class="grid grid-cols-3 gap-4 text-center">
-                    <div class="p-4 bg-blue-50 rounded-lg">
-                        <p class="text-sm text-gray-500 font-medium">MAE</p>
-                        <p class="text-2xl font-bold text-blue-700" id="lstm-mae">-</p>
-                        <p class="text-xs text-gray-400">mm</p>
+                    <div class="p-4 bg-blue-50 rounded-xl transform hover:scale-105 transition-transform dark:bg-blue-900/50">
+                        <p class="text-sm text-gray-500 font-medium uppercase tracking-wider dark:text-gray-400">MAE</p>
+                        <p class="text-2xl font-bold text-blue-700 mt-1" id="lstm-mae">-</p>
+                        <p class="text-xs text-gray-400 mt-1 dark:text-gray-400">Mean Absolute Error</p>
                     </div>
-                    <div class="p-4 bg-blue-50 rounded-lg">
-                        <p class="text-sm text-gray-500 font-medium">MSE</p>
-                        <p class="text-2xl font-bold text-blue-700" id="lstm-mse">-</p>
-                        <p class="text-xs text-gray-400">mm²</p>
+                    <div class="p-4 bg-blue-50 rounded-xl transform hover:scale-105 transition-transform dark:bg-blue-900/50">
+                        <p class="text-sm text-gray-500 font-medium uppercase tracking-wider dark:text-gray-400">MSE</p>
+                        <p class="text-2xl font-bold text-blue-700 mt-1" id="lstm-mse">-</p>
+                        <p class="text-xs text-gray-400 mt-1 dark:text-gray-400">Mean Squared Error</p>
                     </div>
-                    <div class="p-4 bg-blue-50 rounded-lg">
-                        <p class="text-sm text-gray-500 font-medium">RMSE</p>
-                        <p class="text-2xl font-bold text-blue-700" id="lstm-rmse">-</p>
-                        <p class="text-xs text-gray-400">mm</p>
+                    <div class="p-4 bg-blue-50 rounded-xl transform hover:scale-105 transition-transform dark:bg-blue-900/50">
+                        <p class="text-sm text-gray-500 font-medium uppercase tracking-wider dark:text-gray-400">RMSE</p>
+                        <p class="text-2xl font-bold text-blue-700 mt-1" id="lstm-rmse">-</p>
+                        <p class="text-xs text-gray-400 mt-1 dark:text-gray-400">Root MSE</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Prophet Metrics -->
-        <div class="bg-white rounded-lg shadow overflow-hidden">
-            <div class="bg-purple-600 px-6 py-4">
-                <h2 class="text-xl font-bold text-white">📈 Model Prophet</h2>
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 dark:bg-slate-900 dark:border dark:border-gray-700">
+            <div class="bg-purple-600 px-6 py-4 flex justify-between items-center dark:bg-purple-700">
+                <h2 class="text-xl font-bold text-white"><i class="fa-solid fa-chart-line mr-2"></i>Model Prophet</h2>
+                <span class="text-purple-100 text-sm bg-purple-700 px-2 py-1 rounded">Time Series</span>
             </div>
             <div class="p-6">
                 <div class="grid grid-cols-3 gap-4 text-center">
-                    <div class="p-4 bg-purple-50 rounded-lg">
-                        <p class="text-sm text-gray-500 font-medium">MAE</p>
-                        <p class="text-2xl font-bold text-purple-700" id="prophet-mae">-</p>
-                        <p class="text-xs text-gray-400">mm</p>
+                    <div class="p-4 bg-purple-50 rounded-xl transform hover:scale-105 transition-transform dark:bg-purple-900/50">
+                        <p class="text-sm text-gray-500 font-medium uppercase tracking-wider dark:text-gray-400">MAE</p>
+                        <p class="text-2xl font-bold text-purple-700 mt-1 dark:text-purple-400" id="prophet-mae">-</p>
+                        <p class="text-xs text-gray-400 mt-1 dark:text-gray-500">Mean Absolute Error</p>
                     </div>
-                    <div class="p-4 bg-purple-50 rounded-lg">
-                        <p class="text-sm text-gray-500 font-medium">MSE</p>
-                        <p class="text-2xl font-bold text-purple-700" id="prophet-mse">-</p>
-                        <p class="text-xs text-gray-400">mm²</p>
+                    <div class="p-4 bg-purple-50 rounded-xl transform hover:scale-105 transition-transform dark:bg-purple-900/50">
+                        <p class="text-sm text-gray-500 font-medium uppercase tracking-wider dark:text-gray-400">MSE</p>
+                        <p class="text-2xl font-bold text-purple-700 mt-1 dark:text-purple-400" id="prophet-mse">-</p>
+                        <p class="text-xs text-gray-400 mt-1 dark:text-gray-500">Mean Squared Error</p>
                     </div>
-                    <div class="p-4 bg-purple-50 rounded-lg">
-                        <p class="text-sm text-gray-500 font-medium">RMSE</p>
-                        <p class="text-2xl font-bold text-purple-700" id="prophet-rmse">-</p>
-                        <p class="text-xs text-gray-400">mm</p>
+                    <div class="p-4 bg-purple-50 rounded-xl transform hover:scale-105 transition-transform dark:bg-purple-900/50">
+                        <p class="text-sm text-gray-500 font-medium uppercase tracking-wider dark:text-gray-400">RMSE</p>
+                        <p class="text-2xl font-bold text-purple-700 mt-1 dark:text-purple-400" id="prophet-rmse">-</p>
+                        <p class="text-xs text-gray-400 mt-1 dark:text-gray-500">Root MSE</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Comparison Chart -->
-    <div class="bg-white p-6 rounded-lg shadow">
-        <h2 class="text-xl font-semibold mb-6">⚖️ Perbandingan Model</h2>
-        <div class="h-80">
-            <canvas id="comparisonChart"></canvas>
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 gap-8 mt-8 reveal">
+        <!-- LSTM Chart -->
+        <div class="bg-white p-6 rounded-xl shadow-lg dark:bg-slate-900 dark:border dark:border-gray-700">
+            <h3 class="text-lg font-bold text-gray-900 mb-4 border-l-4 border-blue-500 pl-3 dark:text-white">Visualisasi Prediksi LSTM</h3>
+            <div class="relative h-80 w-full">
+                <canvas id="lstmChart"></canvas>
+            </div>
         </div>
-        <div id="conclusion" class="mt-6 p-4 bg-green-50 border-l-4 border-green-500 rounded text-green-800 hidden">
-            <!-- Conclusion text will be injected here -->
+
+        <!-- Prophet Chart -->
+        <div class="bg-white p-6 rounded-xl shadow-lg dark:bg-slate-900 dark:border dark:border-gray-700">
+            <h3 class="text-lg font-bold text-gray-900 mb-4 border-l-4 border-purple-500 pl-3 dark:text-white">Visualisasi Prediksi Prophet</h3>
+            <div class="relative h-80 w-full">
+                <canvas id="prophetChart"></canvas>
+            </div>
         </div>
     </div>
 </div>
@@ -73,72 +87,148 @@
 
 {% block scripts %}
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        fetch('/api/evaluation-metrics')
-            .then(response => response.json())
-            .then(data => {
-                // Update LSTM UI
-                document.getElementById('lstm-mae').textContent = data.lstm.mae.toFixed(2);
-                document.getElementById('lstm-mse').textContent = data.lstm.mse.toFixed(2);
-                document.getElementById('lstm-rmse').textContent = data.lstm.rmse.toFixed(2);
+    // Fetch Metrics
+    fetch('/api/evaluation-metrics')
+        .then(response => response.json())
+        .then(data => {
+            // LSTM
+            document.getElementById('lstm-mae').textContent = data.lstm.mae.toFixed(4);
+            document.getElementById('lstm-mse').textContent = data.lstm.mse.toFixed(4);
+            document.getElementById('lstm-rmse').textContent = data.lstm.rmse.toFixed(4);
+            
+            // Prophet
+            document.getElementById('prophet-mae').textContent = data.prophet.mae.toFixed(4);
+            document.getElementById('prophet-mse').textContent = data.prophet.mse.toFixed(4);
+            document.getElementById('prophet-rmse').textContent = data.prophet.rmse.toFixed(4);
+        })
+        .catch(error => console.error('Error fetching metrics:', error));
 
-                // Update Prophet UI
-                document.getElementById('prophet-mae').textContent = data.prophet.mae.toFixed(2);
-                document.getElementById('prophet-mse').textContent = data.prophet.mse.toFixed(2);
-                document.getElementById('prophet-rmse').textContent = data.prophet.rmse.toFixed(2);
+    // Fetch Chart Data
+    fetch('/api/chart-data')
+        .then(response => response.json())
+        .then(data => {
+            renderLSTMChart(data.lstm);
+            renderProphetChart(data.prophet);
+        })
+        .catch(error => {
+            console.error('Error fetching chart data:', error);
+            // Show placeholder or error message in chart containers
+        });
 
-                // Create Comparison Chart
-                const ctx = document.getElementById('comparisonChart').getContext('2d');
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['MAE', 'RMSE'],
-                        datasets: [
-                            {
-                                label: 'LSTM',
-                                data: [data.lstm.mae, data.lstm.rmse],
-                                backgroundColor: '#2563eb',
-                                borderColor: '#1d4ed8',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'Prophet',
-                                data: [data.prophet.mae, data.prophet.rmse],
-                                backgroundColor: '#9333ea',
-                                borderColor: '#7e22ce',
-                                borderWidth: 1
-                            }
-                        ]
+    function renderLSTMChart(data) {
+        const ctx = document.getElementById('lstmChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: data.actual.length}, (_, i) => i + 1), // Simple index labels
+                datasets: [{
+                    label: 'Aktual',
+                    data: data.actual,
+                    borderColor: '#ef4444', // Red
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0.4
+                }, {
+                    label: 'Prediksi',
+                    data: data.predicted,
+                    borderColor: '#3b82f6', // Blue
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
                     },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Error (mm)'
-                                }
-                            }
-                        },
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: 'Perbandingan Error Model (Lebih Rendah Lebih Baik)'
-                            }
+                    tooltip: {
+                        enabled: true
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Curah Hujan (mm)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time Step'
                         }
                     }
-                });
+                }
+            }
+        });
+    }
 
-                // Conclusion
-                const bestModel = data.lstm.mae < data.prophet.mae ? 'LSTM' : 'Prophet';
-                const diff = Math.abs(data.lstm.mae - data.prophet.mae).toFixed(2);
-                const conclusionDiv = document.getElementById('conclusion');
-                conclusionDiv.innerHTML = `✅ <strong>Kesimpulan:</strong> Model <strong>${bestModel}</strong> menunjukkan performa yang lebih baik dengan MAE lebih rendah (selisih ${diff} mm).`;
-                conclusionDiv.classList.remove('hidden');
-            })
-            .catch(error => console.error('Error fetching metrics:', error));
-    });
+    function renderProphetChart(data) {
+        const ctx = document.getElementById('prophetChart').getContext('2d');
+        
+        // Combine observed and forecast data for plotting
+        // Note: This is a simplified visualization. Prophet plots are complex.
+        // We will plot observed data and the forecast line.
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.forecast.ds, // Use forecast dates
+                datasets: [{
+                    label: 'Observasi',
+                    data: data.observed.y, // This might need alignment with dates
+                    borderColor: 'rgba(0,0,0,0.5)',
+                    backgroundColor: 'rgba(0,0,0,0.1)',
+                    borderWidth: 1,
+                    pointRadius: 1,
+                    fill: false
+                }, {
+                    label: 'Prediksi',
+                    data: data.forecast.yhat,
+                    borderColor: '#0ea5e9', // Sky Blue
+                    backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Curah Hujan (mm)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            maxTicksLimit: 10 // Limit x-axis labels
+                        }
+                    }
+                }
+            }
+        });
+    }
 </script>
 {% endblock %}

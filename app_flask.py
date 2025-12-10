@@ -78,6 +78,22 @@ def evaluation_metrics():
         'prophet': {'mae': 8.4301, 'mse': 252.5356, 'rmse': 15.8914}
     })
 
+@app.route('/api/chart-data')
+def chart_data():
+    """Serve the exported chart data JSON"""
+    try:
+        file_path = os.path.join(app.static_folder, 'data', 'model_charts.json')
+        if os.path.exists(file_path):
+            import json
+            with open(file_path, 'r') as f:
+                data = json.load(f)
+            return jsonify(data)
+        else:
+            return jsonify({'error': 'Chart data not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/predict', methods=['GET', 'POST'])
 def predict():
     if request.method == 'POST':
