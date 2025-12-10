@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: rain-prediction-bogor
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app_flask:app --workers 1 --threads 2 --timeout 120 --max-requests 100
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: TF_CPP_MIN_LOG_LEVEL
+        value: "3"
+      - key: TF_FORCE_GPU_ALLOW_GROWTH
+        value: "true"
+      - key: FLASK_ENV
+        value: production
+      - key: PIP_PREFER_BINARY
+        value: "1"
