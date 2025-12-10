@@ -3,8 +3,23 @@ import pandas as pd
 import numpy as np
 from utils import load_data, predict_lstm, predict_prophet, get_rain_category, generate_ai_explanation, get_gemini_status
 import os
+import gc
 
 app = Flask(__name__)
+
+# Preload models saat aplikasi start untuk menghemat memory
+@app.before_request
+def preload_models():
+    """Preload models on first request"""
+    if not hasattr(app, 'models_loaded'):
+        try:
+            # Trigger lazy loading dengan prediksi dummy
+            predict_lstm(25, 80)
+            predict_prophet(25, 80)
+            app.models_loaded = True
+            gc.collect()  # Force garbage collection setelah loading
+        except Exception as e:
+            print(f"Error preloading models: {e}")
 
 @app.route('/')
 def home():
@@ -15,25 +30,26 @@ def data():
     df = load_data()
     if df is not None:
         # Convert date to string for JSON serialization
-        df['date'] = df['date'].dt.strftime('%Y-%m-%d')
+        df_display = df.copy()
+        df_display['date'] = df_display['date'].dt.strftime('%Y-%m-%d')
+        
         # Get summary stats
         summary = {
-            'total_records': len(df),
-            'start_year': df['date'].min()[:4],
-            'end_year': df['date'].max()[:4],
-            'total_features': df.shape[1]
+            'total_records': len(df_display),
+            'start_year': df_display['date'].min()[:4],
+            'end_year': df_display['date'].max()[:4],
+            'total_features': df_display.shape[1]
         }
-        # Get first 100 rows for table
-        table_data = df.head(100).to_dict(orient='records')
+        # Get first 100 rows for table (hemat memory)
+        table_data = df_display.head(100).to_dict(orient='records')
         
-        # Get data for charts (resampled to monthly for better visualization if needed, or raw)
-        # For simplicity, sending raw data but limiting points if too large could be considered
-        # Here we send all data for charts, client-side can handle or we can downsample
+        # Downsample data untuk chart (ambil setiap 10 baris untuk hemat memory)
+        df_chart = df_display.iloc[::10]  # Ambil setiap 10 baris
         chart_data = {
-            'date': df['date'].tolist(),
-            'tavg': df['TAVG'].fillna(0).tolist(),
-            'rh_avg': df['RH_AVG'].fillna(0).tolist(),
-            'rr': df['RR'].fillna(0).tolist()
+            'date': df_chart['date'].tolist(),
+            'tavg': df_chart['TAVG'].fillna(0).tolist(),
+            'rh_avg': df_chart['RH_AVG'].fillna(0).tolist(),
+            'rr': df_chart['RR'].fillna(0).tolist()
         }
         
         return render_template('data.html', summary=summary, table_data=table_data, chart_data=chart_data)
@@ -102,12 +118,31 @@ def predict():
                 explanation = generate_ai_explanation(primary_pred, tavg, rh_avg, primary_cat, model_name)
                 result['ai_explanation'] = explanation
             
+            # Force garbage collection untuk free up memory
+            gc.collect()
+            
             return jsonify(result)
             
         except Exception as e:
+            gc.collect()  # Clean up on error
             return jsonify({'error': str(e)}), 400
             
     return render_template('prediction.html')
+
+@app.route('/health')
+def health():
+    """Health check endpoint with memory info"""
+    try:
+        import psutil
+        process = psutil.Process(os.getpid())
+        memory_mb = process.memory_info().rss / 1024 / 1024
+        return jsonify({
+            'status': 'healthy',
+            'memory_usage_mb': f"{memory_mb:.2f}",
+            'models_loaded': hasattr(app, 'models_loaded')
+        })
+    except:
+        return jsonify({'status': 'healthy'})
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

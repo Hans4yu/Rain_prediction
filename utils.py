@@ -1,10 +1,31 @@
 import pandas as pd
 import numpy as np
 import joblib
-from tensorflow.keras.models import load_model
-import google.generativeai as genai
 import os
 from dotenv import load_dotenv
+import gc
+
+# Configure TensorFlow untuk memory efficiency SEBELUM import
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Suppress TF warnings
+os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
+os.environ['TF_GPU_ALLOCATOR'] = 'cuda_malloc_async'
+
+import tensorflow as tf
+# Limit TensorFlow memory usage
+try:
+    # Set memory growth untuk GPU jika ada
+    gpus = tf.config.list_physical_devices('GPU')
+    if gpus:
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+    # Limit CPU threads untuk hemat memory
+    tf.config.threading.set_inter_op_parallelism_threads(1)
+    tf.config.threading.set_intra_op_parallelism_threads(1)
+except Exception as e:
+    print(f"TensorFlow config warning: {e}")
+
+from tensorflow.keras.models import load_model
+import google.generativeai as genai
 
 # Load environment variables
 load_dotenv()
@@ -21,11 +42,25 @@ except Exception as e:
     gemini_available = False
     print(f"Gemini AI tidak tersedia: {e}")
 
+# Cache untuk model dan data (di-load sekali saja)
+_cached_lstm_model = None
+_cached_prophet_model = None
+_cached_scaler_features = None
+_cached_scaler_target = None
+_cached_data = None
+
 def load_data():
-    """Load and preprocess the dataset."""
+    """Load and preprocess the dataset with caching."""
+    global _cached_data
+    
+    if _cached_data is not None:
+        return _cached_data
+    
     try:
-        df = pd.read_csv('data/data_bmkg_raw.csv')
+        # Load hanya kolom yang diperlukan untuk menghemat memory
+        df = pd.read_csv('data/data_bmkg_raw.csv', usecols=['date', 'TAVG', 'RH_AVG', 'RR'])
         df['date'] = pd.to_datetime(df['date'])
+        _cached_data = df
         return df
     except Exception as e:
         print(f"Error loading data: {e}")
@@ -71,19 +106,23 @@ def generate_ai_explanation(rainfall, tavg, rh_avg, category, model_name):
         return None
 
 def predict_lstm(tavg, rh_avg):
+    global _cached_lstm_model, _cached_scaler_features, _cached_scaler_target
+    
     try:
-        model_lstm = load_model('model/lstm_model_rr.keras')
-        scaler_features = joblib.load('scaler/scaler_features.joblib')
-        scaler_target = joblib.load('scaler/scaler_target.joblib')
+        # Load model dan scaler hanya sekali
+        if _cached_lstm_model is None:
+            _cached_lstm_model = load_model('model/lstm_model_rr.keras')
+            _cached_scaler_features = joblib.load('scaler/scaler_features.joblib')
+            _cached_scaler_target = joblib.load('scaler/scaler_target.joblib')
         
         input_features = np.array([[tavg, rh_avg]])
-        scaled_input = scaler_features.transform(input_features)
+        scaled_input = _cached_scaler_features.transform(input_features)
         
         # Create sequence (repeat input 7 times as in original app)
         lstm_input = np.repeat(scaled_input, 7, axis=0).reshape(1, 7, 2)
         
-        prediction_scaled = model_lstm.predict(lstm_input, verbose=0)
-        prediction_lstm = scaler_target.inverse_transform(prediction_scaled)
+        prediction_scaled = _cached_lstm_model.predict(lstm_input, verbose=0)
+        prediction_lstm = _cached_scaler_target.inverse_transform(prediction_scaled)
         prediction_lstm = np.expm1(prediction_lstm)  # Inverse log transformation
         
         return float(prediction_lstm[0][0])
@@ -92,8 +131,12 @@ def predict_lstm(tavg, rh_avg):
         return None
 
 def predict_prophet(tavg, rh_avg):
+    global _cached_prophet_model
+    
     try:
-        model_prophet = joblib.load('model/prophet_model_rr.joblib')
+        # Load model hanya sekali
+        if _cached_prophet_model is None:
+            _cached_prophet_model = joblib.load('model/prophet_model_rr.joblib')
         
         future_df = pd.DataFrame({
             'ds': [pd.Timestamp.now()],
@@ -101,7 +144,7 @@ def predict_prophet(tavg, rh_avg):
             'RH_AVG': [rh_avg]
         })
         
-        forecast = model_prophet.predict(future_df)
+        forecast = _cached_prophet_model.predict(future_df)
         prediction_prophet = np.expm1(forecast['yhat'].values[0])
         
         return float(prediction_prophet)
