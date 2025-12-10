@@ -169,14 +169,18 @@ def predict_lstm(tavg, rh_avg):
             _cached_scaler_features = joblib.load('scaler/scaler_features.joblib')
             _cached_scaler_target = joblib.load('scaler/scaler_target.joblib')
         
-        input_features = np.array([[tavg, rh_avg]])
-        scaled_input = _cached_scaler_features.transform(input_features)
+        # Use DataFrame to preserve feature names (fix sklearn warning)
+        input_df = pd.DataFrame([[tavg, rh_avg]], columns=['TAVG', 'RH_AVG'])
+        scaled_input = _cached_scaler_features.transform(input_df)
         
         # Create sequence (repeat input 7 times as in original app)
         lstm_input = np.repeat(scaled_input, 7, axis=0).reshape(1, 7, 2)
         
         prediction_scaled = _cached_lstm_model.predict(lstm_input, verbose=0)
-        prediction_lstm = _cached_scaler_target.inverse_transform(prediction_scaled)
+        
+        # Use DataFrame for target scaler too
+        prediction_df = pd.DataFrame(prediction_scaled, columns=['RR'])
+        prediction_lstm = _cached_scaler_target.inverse_transform(prediction_df)
         prediction_lstm = np.expm1(prediction_lstm)  # Inverse log transformation
         
         return float(prediction_lstm[0][0])
